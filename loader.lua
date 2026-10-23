@@ -63,14 +63,9 @@ if not game:IsLoaded() then
 end
 
 local Games = {
-    [] = {
-        name = "",
-        url = ""
-    },
-
-    [] = {
-        name = "",
-        url = ""
+    [118805555015549] = {
+        name = "Loot To Forge",
+        url = "https://raw.githubusercontent.com/RexzVeloria/KrevzHub/refs/heads/main/games/1loottoforge.lua"
     }
 }
 
