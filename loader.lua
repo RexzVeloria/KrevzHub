@@ -59,7 +59,7 @@ local Player = Players.LocalPlayer
 local PlaceId = tostring(game.PlaceId)
 
 local SUPPORT_URL =
-    "https://raw.githubusercontent.com/USER/REPO/main/support.json"
+    "https://raw.githubusercontent.com/RexzVeloria/KrevzHub/refs/heads/main/support.json"
 
 local function kick(reason)
     Player:Kick("[Krevz Hub] " .. reason)
