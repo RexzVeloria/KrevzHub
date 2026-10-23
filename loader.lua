@@ -52,26 +52,62 @@ KrevzHub Loader
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 --]]
 
-print([[
-KREVZ HUB
----------------------
-Loading...
-]])
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 
-if not game:IsLoaded() then
-    game.Loaded:Wait()
+local Player = Players.LocalPlayer
+local PlaceId = tostring(game.PlaceId)
+
+local SUPPORT_URL =
+    "https://raw.githubusercontent.com/USER/REPO/main/support.json"
+
+local function kick(reason)
+    Player:Kick("[Krevz Hub] " .. reason)
 end
 
-local Games = {
-    [118805555015549] = {
-        name = "Loot To Forge",
-        url = "https://raw.githubusercontent.com/RexzVeloria/KrevzHub/refs/heads/main/games/1loottoforge.lua"
-    }
-}
+local success, result = pcall(function()
+    local response = game:HttpGet(SUPPORT_URL)
+    return HttpService:JSONDecode(response)
+end)
 
-local config = Games[game.PlaceId]
-
-if not config then
-    warn("[Krevz Hub] Unsupported game: " .. tostring(game.PlaceId))
+if not success or type(result) ~= "table"
+    or type(result.games) ~= "table" then
+    kick("Failed to load game support configuration.")
     return
+end
+
+local gameInfo = result.games[PlaceId]
+
+if type(gameInfo) ~= "table" then
+    kick("This game is not supported.")
+    return
+end
+
+if type(gameInfo.url) ~= "string"
+    or gameInfo.url == "" then
+    kick("Game script URL is missing.")
+    return
+end
+
+local loaded, source = pcall(function()
+    return game:HttpGet(gameInfo.url)
+end)
+
+if not loaded or type(source) ~= "string"
+    or source == "" then
+    kick("Failed to download game script.")
+    return
+end
+
+local compiled, scriptFunction = pcall(loadstring, source)
+
+if not compiled or type(scriptFunction) ~= "function" then
+    kick("Failed to compile game script.")
+    return
+end
+
+local executed, err = pcall(scriptFunction)
+
+if not executed then
+    warn("[Krevz Hub] Script error:", err)
 end
